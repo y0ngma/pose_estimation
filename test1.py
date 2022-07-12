@@ -47,15 +47,34 @@ face_found = bool(results.multi_face_landmarks)
 
 if face_found:
     annotated_image = image.copy()
-    # 랜드마크 얼굴에 그리기
-    mp_drawing.draw_landmarks(
-        image = annotated_image, # tesselation 입힐 이미지
-        landmark_list=results.multi_face_landmarks[0], # 얼굴이 하나이므로 그 첫번째를 지정해줌
-        connections=mp_face_mesh.FACEMESH_TESSELATION, # 는 점들을 잇는 선정보 frozen set
-        landmark_drawing_spec=drawing_spec, # None 하면 landmark에 표시없음
-        connection_drawing_spec=mp_drawing_styles 
-            .get_default_face_mesh_tesselation_style()) # 점이을때 기본 스타일 사용
-    
+    for face_landmarks in results.multi_face_landmarks:
+        # 랜드마크 얼굴에 그리기
+        mp_drawing.draw_landmarks(
+            image = annotated_image, # tesselation 입힐 이미지
+            landmark_list=face_landmarks,
+            connections=mp_face_mesh.FACEMESH_TESSELATION, # 는 점들을 잇는 선정보 frozen set
+            landmark_drawing_spec=drawing_spec, # None 하면 landmark에 표시없음
+            connection_drawing_spec=mp_drawing_styles 
+                .get_default_face_mesh_tesselation_style()) # 점이을때 기본 스타일 사용
+        
+        # # Draw the facial contours of the face onto the image
+        # mp_drawing.draw_landmarks(
+        #     image=annotated_image,
+        #     landmark_list=face_landmarks,
+        #     connections=mp_face_mesh.FACEMESH_CONTOURS,
+        #     landmark_drawing_spec=None,
+        #     connection_drawing_spec=mp_drawing_styles
+        #         .get_default_face_mesh_contours_style())
+        
+        # # Draw the iris location boxes of the face onto the image
+        # mp_drawing.draw_landmarks(
+        #     image=annotated_image,
+        #     landmark_list=face_landmarks,
+        #     connections=mp_face_mesh.FACEMESH_IRISES,
+        #     landmark_drawing_spec=None,
+        #     connection_drawing_spec=mp_drawing_styles
+        #         .get_default_face_mesh_iris_connections_style())
+
     cv2.imwrite('face_tesselation_only.png', annotated_image)
     
 img = Image.open('face_tesselation_only.png')
