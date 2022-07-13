@@ -1,6 +1,7 @@
 import cv2
 import urllib.request
 from PIL import Image
+import matplotlib.pyplot as plt
 import numpy as np
 from mediapipe.python.solutions import drawing_utils
 from mediapipe.python.solutions import drawing_styles
@@ -50,8 +51,8 @@ cv2.imwrite(filename, annotated_image)
 # cv2.imwrite(filename, segmented_image)
 # Image.open(filename).show()
 
-poselandmarks_list = nb_helpers.poselandmarks_list
 
+poselandmarks_list = [ repr(item).split('.')[1].split(':')[0] for item in pose.PoseLandmark ]
 num = 0
 for idx in holistic.POSE_CONNECTIONS:
     if num < 5:
@@ -59,5 +60,23 @@ for idx in holistic.POSE_CONNECTIONS:
     else: break
     num += 1
 
-data = np.empty((3, len(holistic.PoseLandmark)))
 
+# # Create a 3x33 array to store XYZ data for 33 landmarks
+# data = np.empty((3, len(holistic.PoseLandmark)))
+
+# # Store the XYZ data for each landmark
+# landmarks = results.pose_world_landmarks.landmark
+# for i in range(len(holistic.PoseLandmark)):
+#     data[:, i] = (landmarks[i].x, landmarks[i].y, landmarks[i].z)   
+
+# # Plot the data
+# fig = plt.figure()
+# fig.set_size_inches(5, 5, True)
+# ax = fig.add_subplot(projection='3d')
+
+# nb_helpers.plot_data(data, ax)
+# nb_helpers.scale_axes(ax)
+
+# # Save a rotation animation of the data
+# filename = 'pose_rotation.mp4'
+# # nb_helpers.rotate_and_save(fig, ax, filename, save=True)
