@@ -11,7 +11,7 @@ import PyQt5
 from PIL import Image
 # from IPython.display import Video, display
 from IPython.display import display
-import nb_helpers
+import os
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -19,13 +19,12 @@ mp_holistic = mp.solutions.holistic
 mp_pose = mp.solutions.pose
 mp_face_mesh = mp.solutions.face_mesh
 
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+save_dir = f"{PROJECT_DIR}/img"
+if not os.path.isdir(save_dir): os.makedirs(save_dir)
 face_url = "https://1vw4gb3u6ymm1ev2sp2nlcxf-wpengine.netdna-ssl.com/wp-content/uploads/shutterstock_149962697-946x658.jpg"
-urllib.request.urlretrieve(face_url, "face_image.jpg")
+urllib.request.urlretrieve(face_url, f"{save_dir}/face_image.jpg")
 
-img = Image.open('face_image.jpg')
-img.show()
-
-file = 'face_image.jpg'
 # 모든 landmarks에 작은 녹색점 표시할것 설정
 drawing_spec = mp_drawing.DrawingSpec(color=[0,255,0], thickness=2, circle_radius=1)
 
@@ -37,13 +36,28 @@ with mp_face_mesh.FaceMesh(
     min_detection_confidence=0.5 # 얼굴찾기 threshold
     ) as face_mesh:
     # Read image file with cv2 and process with face_mesh
-    image = cv2.imread(file)
+    image = cv2.imread(f'{save_dir}/face_image.jpg')
     # cv2.imshow('image', image)
     # data gather/preparation, model definition/tuning/testing 없이 바로 사용
     results = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
 # define boolean corresponding to whether or not a face was detected in the image
 face_found = bool(results.multi_face_landmarks)
+
+if face_found:
+    annotated_image = image.copy()
+    for face_landmarks in results.multi_face_landmarks:
+        # Draw the iris location boxes of the face onto the image
+        mp_drawing.draw_landmarks(
+            image=annotated_image,
+            landmark_list=face_landmarks,
+            connections=mp_face_mesh.FACEMESH_IRISES,
+            landmark_drawing_spec=None,
+            connection_drawing_spec=mp_drawing_styles
+                .get_default_face_mesh_iris_connections_style())
+    cv2.imwrite(f'{save_dir}/FACEMESH_IRISES.png', annotated_image)
+img = Image.open(f'{save_dir}/FACEMESH_IRISES.png')
+img.show()
 
 if face_found:
     annotated_image = image.copy()
@@ -56,27 +70,22 @@ if face_found:
             landmark_drawing_spec=drawing_spec, # None 하면 landmark에 표시없음
             connection_drawing_spec=mp_drawing_styles 
                 .get_default_face_mesh_tesselation_style()) # 점이을때 기본 스타일 사용
-        
-        # # Draw the facial contours of the face onto the image
-        # mp_drawing.draw_landmarks(
-        #     image=annotated_image,
-        #     landmark_list=face_landmarks,
-        #     connections=mp_face_mesh.FACEMESH_CONTOURS,
-        #     landmark_drawing_spec=None,
-        #     connection_drawing_spec=mp_drawing_styles
-        #         .get_default_face_mesh_contours_style())
-        
-        # # Draw the iris location boxes of the face onto the image
-        # mp_drawing.draw_landmarks(
-        #     image=annotated_image,
-        #     landmark_list=face_landmarks,
-        #     connections=mp_face_mesh.FACEMESH_IRISES,
-        #     landmark_drawing_spec=None,
-        #     connection_drawing_spec=mp_drawing_styles
-        #         .get_default_face_mesh_iris_connections_style())
+    cv2.imwrite(f'{save_dir}/FACEMESH_TESSELATION.png', annotated_image)
+img = Image.open(f'{save_dir}/FACEMESH_TESSELATION.png')
+img.show()
 
-    cv2.imwrite('face_tesselation_only.png', annotated_image)
-    
-img = Image.open('face_tesselation_only.png')
+if face_found:
+    annotated_image = image.copy()
+    for face_landmarks in results.multi_face_landmarks:
+        # Draw the facial contours of the face onto the image
+        mp_drawing.draw_landmarks(
+            image=annotated_image,
+            landmark_list=face_landmarks,
+            connections=mp_face_mesh.FACEMESH_CONTOURS,
+            landmark_drawing_spec=None,
+            connection_drawing_spec=mp_drawing_styles
+                .get_default_face_mesh_contours_style())
+    cv2.imwrite(f'{save_dir}/FACEMESH_CONTOURS.png', annotated_image)
+img = Image.open(f'{save_dir}/FACEMESH_CONTOURS.png')
 img.show()
 # display(img)

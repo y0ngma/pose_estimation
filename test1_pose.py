@@ -31,25 +31,25 @@ drawing_utils.draw_landmarks(
 
 filename = "pose_wireframe.png"
 cv2.imwrite(filename, annotated_image)
-# Image.open(filename).show()
+Image.open(filename).show()
 
-# # pose estimation된 객체에 속할 확률임계치를 넘은 픽셀 빼고 나머지를 배경색으로 칠하기
-# segmented_image = image.copy()
-# seg_thres = .3 # 낮을땐 덜 칠해지는 부분이 많은것 확인 가능
+# pose estimation된 객체에 속할 확률임계치를 넘은 픽셀 빼고 나머지를 배경색으로 칠하기
+segmented_image = image.copy()
+seg_thres = .3 # 낮을땐 덜 칠해지는 부분이 많은것 확인 가능
 
-# # segmentation mask를 3 RGB채널로 stack후 어느픽셀을 유지할지 필터 생성
-# condition = np.stack((results.segmentation_mask,)*3, axis=-1) > seg_thres
+# segmentation mask를 3 RGB채널로 stack후 어느픽셀을 유지할지 필터 생성
+condition = np.stack((results.segmentation_mask,)*3, axis=-1) > seg_thres
 
-# # 칠할 검은배경 생성
-# bg_image = np.zeros(image.shape, dtype=np.uint8)
-# # bg_image[:] = [255,0,0] # 다른색으로 칠하기 가능
+# 칠할 검은배경 생성
+bg_image = np.zeros(image.shape, dtype=np.uint8)
+# bg_image[:] = [255,0,0] # 다른색으로 칠하기 가능
 
-# # if condition: segmented_image else bg_image
-# segmented_image = np.where(condition, segmented_image, bg_image)
+# if condition: segmented_image else bg_image
+segmented_image = np.where(condition, segmented_image, bg_image)
 
-# filename = "pose_segmentation.png"
-# cv2.imwrite(filename, segmented_image)
-# Image.open(filename).show()
+filename = "pose_segmentation.png"
+cv2.imwrite(filename, segmented_image)
+Image.open(filename).show()
 
 
 poselandmarks_list = [ repr(item).split('.')[1].split(':')[0] for item in pose.PoseLandmark ]
@@ -59,24 +59,3 @@ for idx in holistic.POSE_CONNECTIONS:
         print(poselandmarks_list[idx[0]], '-->', poselandmarks_list[idx[1]])
     else: break
     num += 1
-
-
-# # Create a 3x33 array to store XYZ data for 33 landmarks
-# data = np.empty((3, len(holistic.PoseLandmark)))
-
-# # Store the XYZ data for each landmark
-# landmarks = results.pose_world_landmarks.landmark
-# for i in range(len(holistic.PoseLandmark)):
-#     data[:, i] = (landmarks[i].x, landmarks[i].y, landmarks[i].z)   
-
-# # Plot the data
-# fig = plt.figure()
-# fig.set_size_inches(5, 5, True)
-# ax = fig.add_subplot(projection='3d')
-
-# nb_helpers.plot_data(data, ax)
-# nb_helpers.scale_axes(ax)
-
-# # Save a rotation animation of the data
-# filename = 'pose_rotation.mp4'
-# # nb_helpers.rotate_and_save(fig, ax, filename, save=True)
